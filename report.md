@@ -30,20 +30,25 @@ Car 6 is actually directly next to the sensing vehicle. While the pickup truck i
 ![Car Bad 2](img/report_car_bad_2.png?raw=true)
 <br>
 ## Part 2: Features
+### Overview
 Identify vehicle features that appear as a stable feature on most vehicles (e.g. rear-bumper, tail-lights) and describe them briefly. Also, use the range image viewer from the last example to underpin your findings using the lidar intensity channel.<br>
 <br>
 The stability of these features highly depends on the direction of the vehicle. <br>
 <br>
+### Oncoming Traffic
 With oncoming traffic, the hood and front-bumper of the vehicle are very stable. You can see an example of this on the LIDAR intensity image marked in blue.<br>
 ![Oncoming Side](img/report_oncoming_side.png?raw=true)
 <br>
+### Current Lane of Traffic
 The opposite tends to be true of the traffic the sensing vehicle is driving with: we see back bumpers, left-sides. You can see an example of this on the LIDAR intensity image marked in red.<br>
 ![Current Side](img/report_our_side.png?raw=true)
 <br>
+### Windows
 On the whole, it does appear like windows tend to not show up since they are a transparent surface. <br>
 You can see an example of this on the LIDAR intensity image marked in green.<br>
 ![Windows](img/report_windows.png?raw=true)
 <br>
+### LIDAR Intensity Image
 In this LIDAR intensity image, I show the correlaries to the above comments.<br>
 ![Intensity](img/report_range_intensity.png?raw=true)
 <br>
