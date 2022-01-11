@@ -69,12 +69,11 @@ def measure_detection_performance(detections, labels, labels_valid, min_iou=0.5)
                 union = poly_1.union(poly_2).area
                 iou = intersection / union
                 
-                gt = [cur_corners[0][0], cur_corners[2][1], cur_corners[2][0], cur_corners[0][1]]
-                pred = [det_corners[0][0], det_corners[2][1], det_corners[2][0], det_corners[0][1]]
+                #gt = [cur_corners[0][0], cur_corners[2][1], cur_corners[2][0], cur_corners[0][1]]
+                #pred = [det_corners[0][0], det_corners[2][1], det_corners[2][0], det_corners[0][1]]
                 #iou = calculate_iou(gt, pred)
-                print("GT: {}, PRED: {}, IOU:{}".format(gt, pred, iou))
+                #print("GT: {}, PRED: {}, IOU:{}".format(gt, pred, iou))
                     
-                
                 ## step 6 : if IOU exceeds min_iou threshold, store [iou,dist_x, dist_y, dist_z] in matches_lab_det and increase the TP count
                 if iou >= min_iou:
                     matches_lab_det.append([iou, dist_x, dist_y, dist_z])
@@ -88,30 +87,34 @@ def measure_detection_performance(detections, labels, labels_valid, min_iou=0.5)
             ious.append(best_match[0])
             center_devs.append(best_match[1:])
 
-    
-    print(ious)
-
-
     ####### ID_S4_EX2 START #######     
     #######
     print("student task ID_S4_EX2")
-    
+
     # compute positives and negatives for precision/recall
-    
     ## step 1 : compute the total number of positives present in the scene
     all_positives = 0
+    all_positives = len(detections)
 
     ## step 2 : compute the number of false negatives
     false_negatives = 0
+    valid = 0
+    for l in labels_valid:
+        if l:
+            valid+=1
+    false_negatives = max(valid-true_positives, 0)
+
 
     ## step 3 : compute the number of false positives
     false_positives = 0
+    false_positives = max(all_positives - true_positives, 0)
     
     #######
     ####### ID_S4_EX2 END #######     
     
     pos_negs = [all_positives, true_positives, false_negatives, false_positives]
     det_performance = [ious, center_devs, pos_negs]
+    print(det_performance)
     
     return det_performance
 
@@ -133,12 +136,18 @@ def compute_performance_stats(det_performance_all):
     print('student task ID_S4_EX3')
 
     ## step 1 : extract the total number of positives, true positives, false negatives and false positives
-    
+    all_positives, true_positives, false_negatives, false_positives = [0,0,0,0]
+    for item in pos_negs:
+        all_positives += item[0]
+        true_positives += item[1]
+        false_negatives += item[2]
+        false_positives += item[3]
+
     ## step 2 : compute precision
-    precision = 0.0
+    precision = true_positives/(true_positives+false_positives)
 
     ## step 3 : compute recall 
-    recall = 0.0
+    recall = true_positives/(true_positives+false_negatives)
 
     #######    
     ####### ID_S4_EX3 END #######     
