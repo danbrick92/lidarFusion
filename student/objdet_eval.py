@@ -13,7 +13,7 @@
 # general package imports
 import numpy as np
 import matplotlib
-matplotlib.use('wxagg') # change backend so that figure maximizing works on Mac as well     
+#matplotlib.use('wxagg') # change backend so that figure maximizing works on Mac as well     
 import matplotlib.pyplot as plt
 
 import torch
@@ -29,7 +29,6 @@ sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, PACKAGE_PARENT)))
 
 # object detection tools and helper functions
 import misc.objdet_tools as tools
-
 
 # compute various performance measures to assess object detection
 def measure_detection_performance(detections, labels, labels_valid, min_iou=0.5):
@@ -49,17 +48,37 @@ def measure_detection_performance(detections, labels, labels_valid, min_iou=0.5)
             print("student task ID_S4_EX1 ")
 
             ## step 1 : extract the four corners of the current label bounding-box
+            cur_corners = tools.compute_box_corners(label.box.center_x, label.box.center_y, label.box.width, label.box.length, label.box.heading)
             
             ## step 2 : loop over all detected objects
-
+            for det in detections:
+                _, x, y, z, _, w, l, yaw = det
+            
                 ## step 3 : extract the four corners of the current detection
+                det_corners = tools.compute_box_corners(x, y, w, l, yaw)
                 
                 ## step 4 : computer the center distance between label and detection bounding-box in x, y, and z
+                dist_x = label.box.center_x - x
+                dist_y = label.box.center_y - y
+                dist_z = label.box.center_z - z
                 
                 ## step 5 : compute the intersection over union (IOU) between label and detection bounding-box
+                poly_1 = Polygon(cur_corners)
+                poly_2 = Polygon(det_corners)
+                intersection = poly_1.intersection(poly_2).area 
+                union = poly_1.union(poly_2).area
+                iou = intersection / union
+                
+                gt = [cur_corners[0][0], cur_corners[2][1], cur_corners[2][0], cur_corners[0][1]]
+                pred = [det_corners[0][0], det_corners[2][1], det_corners[2][0], det_corners[0][1]]
+                #iou = calculate_iou(gt, pred)
+                print("GT: {}, PRED: {}, IOU:{}".format(gt, pred, iou))
+                    
                 
                 ## step 6 : if IOU exceeds min_iou threshold, store [iou,dist_x, dist_y, dist_z] in matches_lab_det and increase the TP count
-                
+                if iou >= min_iou:
+                    matches_lab_det.append([iou, dist_x, dist_y, dist_z])
+                    true_positives += 1
             #######
             ####### ID_S4_EX1 END #######     
             
@@ -68,6 +87,9 @@ def measure_detection_performance(detections, labels, labels_valid, min_iou=0.5)
             best_match = max(matches_lab_det,key=itemgetter(1)) # retrieve entry with max iou in case of multiple candidates   
             ious.append(best_match[0])
             center_devs.append(best_match[1:])
+
+    
+    print(ious)
 
 
     ####### ID_S4_EX2 START #######     

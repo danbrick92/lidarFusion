@@ -18,6 +18,7 @@ import torch
 # add project directory to python path to enable relative imports
 import os
 import sys
+import zlib
 PACKAGE_PARENT = '..'
 SCRIPT_DIR = os.path.dirname(os.path.realpath(os.path.join(os.getcwd(), os.path.expanduser(__file__))))
 sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, PACKAGE_PARENT)))
@@ -29,6 +30,9 @@ from tools.waymo_reader.simple_waymo_open_dataset_reader import dataset_pb2, lab
 # object detection tools and helper functions
 import misc.objdet_tools as tools
 
+# Student imports
+import open3d as o3d
+
 def get_range_image(frame, lidar_name):
     # extract range image from frame
     lidar = [obj for obj in frame.lasers if obj.name == lidar_name][0] # get laser data structure from frame
@@ -38,8 +42,8 @@ def get_range_image(frame, lidar_name):
         ri = np.array(ri.data).reshape(ri.shape.dims)
     return ri
 
-
 WIND = None
+
 
 # visualize lidar point-cloud
 def show_pcl(pcl):
@@ -78,6 +82,10 @@ def show_pcl(pcl):
     # step 5 : visualize point cloud and keep window open until right-arrow is pressed (key-code 262)
     WIND.register_key_callback(262, update_wind)
     WIND.run()
+    
+    
+    #######
+    ####### ID_S1_EX2 END #######     
 
 # visualize range image
 def show_range_image(frame, lidar_name):
@@ -86,7 +94,7 @@ def show_range_image(frame, lidar_name):
     #######
     print("student task ID_S1_EX1")
 
-    # step 1 : extract lidar data and range image for the roof-mounted lidar
+     # step 1 : extract lidar data and range image for the roof-mounted lidar
     ri = get_range_image(frame, lidar_name)
     
     # step 2 : extract the range and the intensity channel from the range image
@@ -112,9 +120,21 @@ def show_range_image(frame, lidar_name):
     # step 6 : stack the range and intensity image vertically using np.vstack and convert the result to an unsigned 8-bit integer
     img_range_intensity = np.vstack((img_range,img_intensity))
     img_range_intensity = img_range_intensity.astype(np.uint8)
+    #######
     ####### ID_S1_EX1 END #######     
     
     return img_range_intensity
+
+def scale_to_255(pcl):
+    """
+    Takes an arbitrary range and converts it to 0-255
+    """
+    pcl_min = pcl.min()
+    pcl_max = pcl.max()
+    scale_down = pcl - pcl.min()
+    pcl_range = pcl_max - pcl_min
+    scaled = (scale_down * (1/pcl_range * 255)).astype('uint8')
+    return scaled
 
 
 # create birds-eye view of lidar data
