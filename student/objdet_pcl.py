@@ -165,8 +165,10 @@ def bev_from_pcl(lidar_pcl, configs):
     # step 3 : perform the same operation as in step 2 for the y-coordinates but make sure that no negative bev-coordinates occur
     y_range = (configs.lim_y[1] - configs.lim_y[0])
     discretization = y_range / configs.bev_width
-    lidar_pcl_cp[:, 1] = np.int_(np.floor(lidar_pcl_cp[:, 1] / discretization))
-    lidar_pcl_cp[:, 1] = scale_to_255(lidar_pcl_cp[:, 1])
+    #lidar_pcl_cp[:, 1] = np.int_(np.floor(lidar_pcl_cp[:, 1] / discretization)) + (configs.bev_width + 1) / 2)
+    lidar_pcl_cp[:, 1] = np.int_(np.floor(lidar_pcl_cp[:, 1] / discretization) + (configs.bev_width + 1) / 2)
+    
+    #lidar_pcl_cp[:, 1] = scale_to_255(lidar_pcl_cp[:, 1])
 
     # step 4 : visualize point-cloud using the function show_pcl from a previous task
     #show_pcl(lidar_pcl_cp)
@@ -195,7 +197,7 @@ def bev_from_pcl(lidar_pcl, configs):
     ## step 4 : assign the intensity value of each unique entry in lidar_top_pcl to the intensity map 
     ##          make sure that the intensity is scaled in such a way that objects of interest (e.g. vehicles) are clearly visible    
     ##          also, make sure that the influence of outliers is mitigated by normalizing intensity on the difference between the max. and min. value within the point cloud
-    intensity_map[np.int_(lidar_pcl_cp_intensity[:, 0]), np.int_(lidar_pcl_cp_intensity[:, 1])] = lidar_pcl_cp_intensity[:, 3]# / (np.amax(lidar_pcl_cp_intensity[:, 3])#-np.amin(lidar_pcl_cp_intensity[:, 3]))
+    intensity_map[np.int_(lidar_pcl_cp_intensity[:, 0]), np.int_(lidar_pcl_cp_intensity[:, 1])] = lidar_pcl_cp_intensity[:, 3]# #/ (np.amax(lidar_pcl_cp_intensity[:, 3])#-np.amin(lidar_pcl_cp_intensity[:, 3]))
     intensity_map[intensity_map > 1.0] = 1.0 # only one value over 1
     # print(np.histogram(intensity_map))
 
