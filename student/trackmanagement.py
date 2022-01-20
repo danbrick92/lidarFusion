@@ -1,3 +1,4 @@
+
 # ---------------------------------------------------------------------
 # Project "Track 3D-Objects Over Time"
 # Copyright (C) 2020, Dr. Antje Muntzinger / Dr. Andreas Haja.
@@ -22,6 +23,8 @@ SCRIPT_DIR = os.path.dirname(os.path.realpath(os.path.join(os.getcwd(), os.path.
 sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, PACKAGE_PARENT)))
 import misc.params as params 
 
+INCREMENT=.5/params.window
+
 class Track:
     '''Track class with state, covariance, id, score'''
     def __init__(self, meas, id):
@@ -34,9 +37,8 @@ class Track:
         # unassigned measurement transformed from sensor to vehicle coordinates
         # - initialize track state and track score with appropriate values
         ############
-        meas.sensor.sens_to_veh
 
-         # Initialize X
+        # Initialize X
         Z = np.matrix([[meas.z[0], meas.z[1], meas.z[2], 1]]).T
         X = meas.sensor.sens_to_veh.dot(Z)
         self.x = np.matrix([ [X[0]],
@@ -72,7 +74,7 @@ class Track:
         #                 [0.0e+00, 0.0e+00, 0.0e+00, 0.0e+00, 2.5e+03, 0.0e+00],
         #                 [0.0e+00, 0.0e+00, 0.0e+00, 0.0e+00, 0.0e+00, 2.5e+01]])
         self.state = 'initialized'
-        self.score = 1.0/params.window
+        self.score = INCREMENT
         
         ############
         # END student code
@@ -123,7 +125,6 @@ class Trackmanagement:
         # - delete tracks if the score is too low or P is too big (check params.py for parameters that might be helpful, but
         # feel free to define your own parameters)
         ############
-        increment = 1.0/params.window
         
         # decrease score for unassigned tracks
         for i in unassigned_tracks:
@@ -132,7 +133,7 @@ class Trackmanagement:
             if meas_list: # if not empty
                 if meas_list[0].sensor.in_fov(track.x):
                     # your code goes here
-                    self.track_list[i].score -= increment
+                    self.track_list[i].score -= INCREMENT
 
         # delete old tracks  
         tracks_to_delete = []
@@ -140,14 +141,16 @@ class Trackmanagement:
             track = self.track_list[i]
             # Check score
             if (track.state == 'confirmed' and track.score < params.delete_threshold):
+                print("Low C")
                 tracks_to_delete.append(track)
                 continue
-            elif (track.score < increment):
+            elif (track.score < INCREMENT):
+                print("Low")
                 tracks_to_delete.append(track)
                 continue
             # Check P
             if (track.P[0,0] > params.max_P or track.P[1,1] > params.max_P):
-                print("Caser")
+                print("Low P")
                 tracks_to_delete.append(track)
         
         for track in tracks_to_delete:
@@ -180,7 +183,7 @@ class Trackmanagement:
         # - increase track score
         # - set track state to 'tentative' or 'confirmed'
         ############
-        track.score += 1.0/params.window
+        track.score += INCREMENT
         track.score = min(1.0, track.score)
 
         if track.score >= params.confirmed_threshold:
