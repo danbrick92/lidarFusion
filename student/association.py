@@ -105,7 +105,7 @@ class Association:
         
     def MHD(self, track, meas, KF):
         gamma = KF.gamma(track, meas)
-        H = meas.sensor.get_H(meas.sensor.get_hx(track.x))
+        H = meas.sensor.get_H(track.x)
         S = KF.S(track, meas, H)
         
         MHD = gamma.transpose()*np.linalg.inv(S)*gamma # Mahalanobis distance formula

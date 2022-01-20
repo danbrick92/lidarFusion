@@ -98,7 +98,7 @@ class Filter:
         # Get variables
         z = meas.z
         x = track.x
-        H = meas.sensor.get_H(meas.sensor.get_hx(x))
+        H = meas.sensor.get_H(x)
         P = track.P
         R = meas.R
         I = np.identity(params.dim_state)
@@ -124,9 +124,9 @@ class Filter:
         ############
         z = meas.z
         x = track.x
-        H = meas.sensor.get_H(meas.sensor.get_hx(x))
+        H = meas.sensor.get_hx(x)
 
-        gamma = z - H.dot(x)
+        gamma = z - H
         return gamma        
         ############
         # END student code
